@@ -173,8 +173,7 @@ with st.sidebar:
 
 # ── Header ────────────────────────────────────────────────────────────────────
 st.title("🛡️ Predictive Customer Churn")
-st.markdown("Isi form di bawah sesuai dengan metrik target pada dataset CSV untuk memproyeksikan probabilitas retensi pelanggan.")
-
+st.markdown("Input data interaksi dan finansial klien untuk mengevaluasi probabilitas churn dan menentukan langkah eskalasi sales selanjutnya.")
 if artifacts is None:
     st.error("❌ File model `churn_model.joblib` belum ada di direktori yang sama.")
     st.stop()
