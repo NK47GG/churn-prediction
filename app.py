@@ -81,7 +81,7 @@ def load_artifacts(path: str = "churn_model.joblib"):
 
 artifacts = load_artifacts()
 
-# ── Konstanta referensi (sama dengan notebook Sel 2) ─────────────────────────
+# ── Konstanta Referensi ───────────────────────────────────────────────────────
 REF_DATE = pd.Timestamp("2025-01-01")
 
 
@@ -93,7 +93,7 @@ def process_input_data(raw_data, raw_columns):
     signup_ts = pd.to_datetime(df["signup_date"])
     purchase_ts = pd.to_datetime(df["last_purchase_date"])
     
-    # Feature engineering turunan seperti di notebook
+    # Feature engineering turunan
     df["days_since_signup"] = (REF_DATE - signup_ts).dt.days
     df["days_since_purchase"] = (REF_DATE - purchase_ts).dt.days
     df["signup_month"] = signup_ts.dt.month
@@ -108,7 +108,7 @@ def process_input_data(raw_data, raw_columns):
             if col not in df.columns:
                 df[col] = 0
         
-        # Saring hanya kolom yang ada di raw_columns untuk diumpankan ke pipeline
+        # Saring hanya kolom yang ada di raw_columns
         available_cols = [c for c in raw_columns if c in df.columns]
         return df[available_cols]
     
@@ -125,17 +125,17 @@ def run_prediction(input_df, artifacts):
 
     df = input_df.copy()
     
-    # 1. Outlier clipping (batas IQR dari data latih)
+    # 1. Outlier clipping (batas IQR)
     for col, (lo, hi) in iqr_bounds.items():
         if col in df.columns:
             df[col] = df[col].clip(lo, hi)
 
-    # 2. ColumnTransformer: impute + OHE + scale
+    # 2. Impute + OHE + scale
     X_arr      = preprocessor.transform(df)
     feat_names = preprocessor.get_feature_names_out()
     X_enc      = pd.DataFrame(X_arr, columns=feat_names)
 
-    # 3. Seleksi top features (skenario Tuning)
+    # 3. Seleksi top features
     if scenario == "Tuning" and len(top_features) > 0:
         available = [f for f in top_features if f in X_enc.columns]
         X_enc = X_enc[available]
@@ -154,7 +154,7 @@ def run_prediction(input_df, artifacts):
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.title("🔮 Churn Predictor")
-    st.caption("UAS Bengkel Koding — Data Science")
+    st.caption("Strategic Customer Analysis Dashboard")
     st.divider()
     if artifacts:
         st.markdown("### 📦 Info Model")
@@ -163,17 +163,17 @@ with st.sidebar:
         st.success(
             f"**Model:** {artifacts.get('model_name', '-')}\n\n"
             f"**Skenario:** {artifacts.get('scenario', '-')}\n\n"
-            f"**Fitur:** {n_feat}"
+            f"**Fitur Prediktor:** {n_feat}"
         )
     else:
         st.warning("⚠️ `churn_model.joblib` tidak ditemukan.")
     st.divider()
-    st.caption("© 2025 · Business & Tech Analytics")
+    st.caption("© 2026 · Business & Tech Analytics")
 
 
 # ── Header ────────────────────────────────────────────────────────────────────
 st.title("🛡️ Predictive Customer Churn")
-st.markdown("Isi form di bawah sesuai dengan metrik yang tercatat di database CSV untuk mendapatkan analisis prediksi.")
+st.markdown("Isi form di bawah sesuai dengan metrik target pada dataset CSV untuk memproyeksikan probabilitas retensi pelanggan.")
 
 if artifacts is None:
     st.error("❌ File model `churn_model.joblib` belum ada di direktori yang sama.")
@@ -181,7 +181,7 @@ if artifacts is None:
 
 raw_columns = artifacts.get("raw_columns", [])
 
-# ── Form Berdasarkan Kolom CSV Asli (Tanpa Tab) ───────────────────────────────
+# ── Form Berdasarkan Kolom CSV Asli (Vertikal / No Tabs) ──────────────────────
 with st.form("form_prediksi"):
     
     # --- SECTION 1: Demografi & Wilayah ---
@@ -221,7 +221,7 @@ with st.form("form_prediksi"):
     satisfaction_score = c17.number_input("Satisfaction Score", min_value=0, max_value=5, value=4)
     nps_score          = c18.number_input("NPS Score", min_value=0, max_value=10, value=8)
 
-    # --- SECTION 6: Finansial & Pembayaran ---
+    # --- SECTION 6: Finansial & Transaksi ---
     st.markdown('<p class="section-header">💳 Finansial & Transaksi</p>', unsafe_allow_html=True)
     c19, c20, c21, c22 = st.columns(4)
     total_spent                = c19.number_input("Total Spent ($)", min_value=0.0, value=1250.50, format="%.2f")
@@ -234,7 +234,7 @@ with st.form("form_prediksi"):
     c23, c24, c25 = st.columns(3)
     payment_method      = c23.selectbox("Payment Method", ["Card", "PayPal", "UPI", "Bank Transfer"])
     discount_used       = c24.selectbox("Discount Used?", [1, 0], format_func=lambda x: "Yes (1)" if x==1 else "No (0)")
-    coupon_code         = c25.text_input("Coupon Code", placeholder="Kosongkan jika tidak ada")
+    coupon_code         = c25.text_input("Coupon Code", placeholder="Kosongkan jika tidak ada (opsional)")
 
     c26, c27, c28, c29 = st.columns(4)
     support_tickets          = c26.number_input("Support Tickets", min_value=0, value=1)
@@ -243,16 +243,16 @@ with st.form("form_prediksi"):
     marketing_spend_per_user = c29.number_input("Marketing Spend ($)", min_value=0.0, value=25.50, format="%.2f")
 
     st.markdown("<br>", unsafe_allow_html=True)
-    submitted = st.form_submit_button("⚡ Jalankan Prediksi Churn", type="primary", use_container_width=True)
+    submitted = st.form_submit_button("⚡ Eksekusi Prediksi Churn", type="primary", use_container_width=True)
 
 
 # ── Eksekusi Prediksi ─────────────────────────────────────────────────────────
 if submitted:
     if last_purchase_date < signup_date:
-        st.error("❌ Last Purchase Date tidak boleh lebih awal dari Signup Date.")
+        st.error("❌ Last Purchase Date tidak boleh mendahului Signup Date.")
         st.stop()
 
-    # Dictionary yang sama persis dengan CSV
+    # Data dictionary sesuai kolom CSV
     raw_data_input = {
         "gender": gender,
         "age": age,
@@ -284,24 +284,24 @@ if submitted:
         "last_3_month_purchase_freq": last_3_month_purchase_freq
     }
 
-    with st.spinner("Menganalisis probabilitas churn..."):
+    with st.spinner("Mengalkulasi proyeksi probabilitas..."):
         input_df = process_input_data(raw_data_input, raw_columns)
         pred, proba_churn = run_prediction(input_df, artifacts)
 
     # ── Tampilan Hasil ────────────────────────────────────────────────────────
     st.divider()
-    st.subheader("📊 Hasil Prediksi Model")
+    st.subheader("📊 Hasil Prediksi Analisis")
 
     is_churn   = pred == 1
     card_class = "churn-high" if is_churn else "churn-low"
-    verdict    = "🚨 CHURN" if is_churn else "✅ RETENSI"
+    verdict    = "🚨 RISIKO CHURN" if is_churn else "✅ AMAN (RETENSI)"
     risk_label = ("🔴 Kritis" if proba_churn > 0.70 else
-                  "🟡 Waspada" if proba_churn > 0.40 else "🟢 Aman")
+                  "🟡 Waspada" if proba_churn > 0.40 else "🟢 Terkendali")
 
     r1, r2, r3 = st.columns(3)
     r1.markdown(
         f'<div class="metric-card {card_class}">'
-        f'<div class="metric-label">Status Pelanggan</div>'
+        f'<div class="metric-label">Proyeksi Pelanggan</div>'
         f'<div class="metric-value">{verdict}</div></div>',
         unsafe_allow_html=True)
     r2.markdown(
@@ -311,14 +311,14 @@ if submitted:
         unsafe_allow_html=True)
     r3.markdown(
         f'<div class="metric-card">'
-        f'<div class="metric-label">Level Risiko</div>'
+        f'<div class="metric-label">Status Risiko</div>'
         f'<div class="metric-value">{risk_label}</div></div>',
         unsafe_allow_html=True)
 
     # Visualisasi Bar / Gauge
-    st.markdown("**Pemetaan Risiko**")
+    st.markdown("**Pemetaan Skala Risiko**")
     fig, ax = plt.subplots(figsize=(8, 1.2))
-    fig.patch.set_facecolor('#0E1117') # Match dark theme bg
+    fig.patch.set_facecolor('#0E1117')
     ax.set_facecolor('#0E1117')
     
     ax.barh([""], [1], color="#1E293B", height=0.4, edgecolor="#334155")
@@ -340,6 +340,6 @@ if submitted:
     st.pyplot(fig, use_container_width=True)
     plt.close(fig)
 
-    # Expanders untuk Debugging / Insight Detail
-    with st.expander("📋 Data yang Diumpankan ke Model (Post-Engineering)"):
+    # Expanders untuk Debugging
+    with st.expander("📋 Log Data Input (Setelah Feature Engineering)"):
         st.dataframe(input_df.T.rename(columns={0: "Value"}), use_container_width=True)
