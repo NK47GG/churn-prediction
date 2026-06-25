@@ -63,6 +63,10 @@ st.markdown("""
         border-left: 4px solid #38BDF8; 
         padding-left: 12px; 
         margin: 24px 0 16px;
+        background-color: #1E293B;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        border-radius: 4px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -177,63 +181,66 @@ if artifacts is None:
 
 raw_columns = artifacts.get("raw_columns", [])
 
-# ── Form Berdasarkan Kolom CSV Asli ───────────────────────────────────────────
+# ── Form Berdasarkan Kolom CSV Asli (Tanpa Tab) ───────────────────────────────
 with st.form("form_prediksi"):
-    tab1, tab2, tab3 = st.tabs(["🧑‍💼 Demografi & Akun", "📱 Channel & Engagement", "💳 Transaksi & Layanan"])
     
-    with tab1:
-        st.markdown('<p class="section-header">Identitas & Wilayah</p>', unsafe_allow_html=True)
-        c1, c2, c3, c4 = st.columns(4)
-        gender  = c1.selectbox("Gender", ["Male", "Female", "Other"])
-        age     = c2.number_input("Age", min_value=10, max_value=100, value=30)
-        country = c3.text_input("Country", value="UK")
-        city    = c4.text_input("City", value="London")
+    # --- SECTION 1: Demografi & Wilayah ---
+    st.markdown('<p class="section-header">🧑‍💼 Identitas & Wilayah</p>', unsafe_allow_html=True)
+    c1, c2, c3, c4 = st.columns(4)
+    gender  = c1.selectbox("Gender", ["Male", "Female", "Other"])
+    age     = c2.number_input("Age", min_value=10, max_value=100, value=30)
+    country = c3.text_input("Country", value="UK")
+    city    = c4.text_input("City", value="London")
 
-        st.markdown('<p class="section-header">Informasi Langganan</p>', unsafe_allow_html=True)
-        c5, c6, c7, c8 = st.columns(4)
-        signup_date        = c5.date_input("Signup Date", value=date(2023, 1, 15))
-        last_purchase_date = c6.date_input("Last Purchase Date", value=date(2024, 6, 1))
-        subscription_type  = c7.selectbox("Subscription Type", ["Monthly", "Annual", "Basic"])
-        is_premium_user    = c8.selectbox("Is Premium User?", [1, 0], format_func=lambda x: "Yes (1)" if x==1 else "No (0)")
+    # --- SECTION 2: Informasi Langganan ---
+    st.markdown('<p class="section-header">📅 Informasi Langganan</p>', unsafe_allow_html=True)
+    c5, c6, c7, c8 = st.columns(4)
+    signup_date        = c5.date_input("Signup Date", value=date(2023, 1, 15))
+    last_purchase_date = c6.date_input("Last Purchase Date", value=date(2024, 6, 1))
+    subscription_type  = c7.selectbox("Subscription Type", ["Monthly", "Annual", "Basic"])
+    is_premium_user    = c8.selectbox("Is Premium User?", [1, 0], format_func=lambda x: "Yes (1)" if x==1 else "No (0)")
 
-    with tab2:
-        st.markdown('<p class="section-header">Sumber Akuisisi & Perangkat</p>', unsafe_allow_html=True)
-        c9, c10 = st.columns(2)
-        acquisition_channel = c9.selectbox("Acquisition Channel", ["Organic", "Email", "Facebook Ads", "Google Ads", "Referral"])
-        device_type         = c10.selectbox("Device Type", ["Desktop", "Mobile", "Tablet"])
+    # --- SECTION 3: Sumber Akuisisi & Perangkat ---
+    st.markdown('<p class="section-header">📱 Sumber Akuisisi & Perangkat</p>', unsafe_allow_html=True)
+    c9, c10, c11 = st.columns([2, 2, 1])
+    acquisition_channel = c9.selectbox("Acquisition Channel", ["Organic", "Email", "Facebook Ads", "Google Ads", "Referral"])
+    device_type         = c10.selectbox("Device Type", ["Desktop", "Mobile", "Tablet"])
 
-        st.markdown('<p class="section-header">Metrik Interaksi Web/Aplikasi</p>', unsafe_allow_html=True)
-        c11, c12, c13 = st.columns(3)
-        total_visits      = c11.number_input("Total Visits", min_value=0, value=10)
-        avg_session_time  = c12.number_input("Avg Session Time (mins)", min_value=0.0, value=5.5, format="%.2f")
-        pages_per_session = c13.number_input("Pages per Session", min_value=0.0, value=3.2, format="%.2f")
+    # --- SECTION 4: Metrik Interaksi Web/Aplikasi ---
+    st.markdown('<p class="section-header">🌐 Metrik Interaksi Web/Aplikasi</p>', unsafe_allow_html=True)
+    c12, c13, c14 = st.columns(3)
+    total_visits      = c12.number_input("Total Visits", min_value=0, value=10)
+    avg_session_time  = c13.number_input("Avg Session Time (mins)", min_value=0.0, value=5.5, format="%.2f")
+    pages_per_session = c14.number_input("Pages per Session", min_value=0.0, value=3.2, format="%.2f")
 
-        st.markdown('<p class="section-header">Metrik Email & Kepuasan</p>', unsafe_allow_html=True)
-        c14, c15, c16, c17 = st.columns(4)
-        email_open_rate    = c14.number_input("Email Open Rate", min_value=0.0, max_value=1.0, value=0.45, format="%.2f")
-        email_click_rate   = c15.number_input("Email Click Rate", min_value=0.0, max_value=1.0, value=0.15, format="%.2f")
-        satisfaction_score = c16.number_input("Satisfaction Score", min_value=0, max_value=5, value=4)
-        nps_score          = c17.number_input("NPS Score", min_value=0, max_value=10, value=8)
+    # --- SECTION 5: Metrik Email & Kepuasan ---
+    st.markdown('<p class="section-header">⭐ Metrik Email & Kepuasan</p>', unsafe_allow_html=True)
+    c15, c16, c17, c18 = st.columns(4)
+    email_open_rate    = c15.number_input("Email Open Rate", min_value=0.0, max_value=1.0, value=0.45, format="%.2f")
+    email_click_rate   = c16.number_input("Email Click Rate", min_value=0.0, max_value=1.0, value=0.15, format="%.2f")
+    satisfaction_score = c17.number_input("Satisfaction Score", min_value=0, max_value=5, value=4)
+    nps_score          = c18.number_input("NPS Score", min_value=0, max_value=10, value=8)
 
-    with tab3:
-        st.markdown('<p class="section-header">Finansial & Pembayaran</p>', unsafe_allow_html=True)
-        c18, c19, c20, c21 = st.columns(4)
-        total_spent                = c18.number_input("Total Spent ($)", min_value=0.0, value=1250.50, format="%.2f")
-        avg_order_value            = c19.number_input("Avg Order Value ($)", min_value=0.0, value=85.20, format="%.2f")
-        lifetime_value             = c20.number_input("Lifetime Value ($)", min_value=0.0, value=1500.00, format="%.2f")
-        last_3_month_purchase_freq = c21.number_input("Last 3 Month Freq", min_value=0, value=2)
+    # --- SECTION 6: Finansial & Pembayaran ---
+    st.markdown('<p class="section-header">💳 Finansial & Transaksi</p>', unsafe_allow_html=True)
+    c19, c20, c21, c22 = st.columns(4)
+    total_spent                = c19.number_input("Total Spent ($)", min_value=0.0, value=1250.50, format="%.2f")
+    avg_order_value            = c20.number_input("Avg Order Value ($)", min_value=0.0, value=85.20, format="%.2f")
+    lifetime_value             = c21.number_input("Lifetime Value ($)", min_value=0.0, value=1500.00, format="%.2f")
+    last_3_month_purchase_freq = c22.number_input("Last 3 Month Freq", min_value=0, value=2)
 
-        st.markdown('<p class="section-header">Layanan & Promo</p>', unsafe_allow_html=True)
-        c22, c23, c24 = st.columns(3)
-        payment_method      = c22.selectbox("Payment Method", ["Card", "PayPal", "UPI", "Bank Transfer"])
-        discount_used       = c23.selectbox("Discount Used?", [1, 0], format_func=lambda x: "Yes (1)" if x==1 else "No (0)")
-        coupon_code         = c24.text_input("Coupon Code", placeholder="Kosongkan jika tidak ada")
+    # --- SECTION 7: Layanan & Promo ---
+    st.markdown('<p class="section-header">🛍️ Layanan & Promo</p>', unsafe_allow_html=True)
+    c23, c24, c25 = st.columns(3)
+    payment_method      = c23.selectbox("Payment Method", ["Card", "PayPal", "UPI", "Bank Transfer"])
+    discount_used       = c24.selectbox("Discount Used?", [1, 0], format_func=lambda x: "Yes (1)" if x==1 else "No (0)")
+    coupon_code         = c25.text_input("Coupon Code", placeholder="Kosongkan jika tidak ada")
 
-        c25, c26, c27, c28 = st.columns(4)
-        support_tickets          = c25.number_input("Support Tickets", min_value=0, value=1)
-        refund_requested         = c26.selectbox("Refund Requested?", [1, 0], format_func=lambda x: "Yes (1)" if x==1 else "No (0)")
-        delivery_delay_days      = c27.number_input("Delivery Delay Days", min_value=0, value=0)
-        marketing_spend_per_user = c28.number_input("Marketing Spend ($)", min_value=0.0, value=25.50, format="%.2f")
+    c26, c27, c28, c29 = st.columns(4)
+    support_tickets          = c26.number_input("Support Tickets", min_value=0, value=1)
+    refund_requested         = c27.selectbox("Refund Requested?", [1, 0], format_func=lambda x: "Yes (1)" if x==1 else "No (0)")
+    delivery_delay_days      = c28.number_input("Delivery Delay Days", min_value=0, value=0)
+    marketing_spend_per_user = c29.number_input("Marketing Spend ($)", min_value=0.0, value=25.50, format="%.2f")
 
     st.markdown("<br>", unsafe_allow_html=True)
     submitted = st.form_submit_button("⚡ Jalankan Prediksi Churn", type="primary", use_container_width=True)
